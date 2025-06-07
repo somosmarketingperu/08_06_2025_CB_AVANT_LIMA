@@ -1,7 +1,0 @@
-# Ignorar la carpeta de módulos
-node_modules/
-
-# Ignorar archivos de sesiones
-.env
-.DS_Store
-npm-debug.log
