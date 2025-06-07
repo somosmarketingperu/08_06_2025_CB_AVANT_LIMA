@@ -201,7 +201,7 @@ const flujoValidacionDni = addKeyword([]) // Se llega aquí por gotoFlow desde B
         console.log(formatMessageLog('received', ctx.from, ctx.body));
 
         const dni = ctx.body.trim();
-        const token = 'fea232162c6106d5cd603a2c9e91fab25e1dc1ee15b8b720b63bbeb53c839ab7'; // Token de Apiperu
+        // El token y la llamada a la API se moverán al siguiente flujo
 
         // Validar formato del DNI
         if (!/^\d{8}$/.test(dni)) {
@@ -212,32 +212,64 @@ const flujoValidacionDni = addKeyword([]) // Se llega aquí por gotoFlow desde B
             return fallBack();
         }
 
-        // Validar DNI con Apiperu
+        // Guardar el DNI en el estado de conversación para el siguiente paso
+        let infoRuta = rutasDeConversacion.get(ctx.from) || {};
+        infoRuta.dni = dni;
+        rutasDeConversacion.set(ctx.from, infoRuta);
+
+        // Redirigir al nuevo flujo para pedir el código de verificación
+        return gotoFlow(flujoPedirCodigoVerificacion);
+    });
+
+// Nuevo Flujo para pedir el código de verificación
+const flujoPedirCodigoVerificacion = addKeyword([])
+    .addAnswer('Por favor, ingresa el *código de verificación* de tu DNI (el último dígito en la parte superior derecha de tu DNI):', { capture: true }, async (ctx, { flowDynamic, gotoFlow, fallBack }) => {
+        console.log(formatMessageLog('sent', ctx.from, 'Solicitando código de verificación del DNI.'));
+        console.log(formatMessageLog('received', ctx.from, ctx.body));
+
+        const codigoVerificacionUsuario = ctx.body.trim();
+        const infoRuta = rutasDeConversacion.get(ctx.from) || {};
+        const dniGuardado = infoRuta.dni;
+        const token = 'fea232162c6106d5cd603a2c9e91fab25e1dc1ee15b8b720b63bbeb53c839ab7'; // Token de Apiperu
+
+        // Validar formato del código de verificación (debe ser un solo dígito numérico)
+        if (!/^\d{1}$/.test(codigoVerificacionUsuario)) {
+            await flowDynamic('⚠️ Formato de código de verificación inválido. Por favor, ingresa un *único dígito numérico*.');
+            console.log(formatMessageLog('sent', ctx.from, '❌ Código de verificación inválido.'));
+            return fallBack();
+        }
+
         try {
-            const respuesta = await validarDni(dni, token);
-            if (respuesta && respuesta.success) {
-                const nombreCompleto = respuesta.data.nombre_completo;
-                const successMessage = `✅ ¡Gracias! Tu DNI ha sido validado, ${nombreCompleto}.`;
-                await flowDynamic(successMessage);
-                // CONSOLE.LOG PARA MENSAJE ENVIADO (VALIDACION EXITOSA)
-                console.log(formatMessageLog('sent', ctx.from, successMessage));
+            const respuesta = await validarDni(dniGuardado, token);
 
-                const estadoActual = rutasDeConversacion.get(ctx.from) || {};
-                rutasDeConversacion.set(ctx.from, { ...estadoActual, validated: true, name: nombreCompleto });
+            if (respuesta && respuesta.success && respuesta.data && respuesta.data.codigo_verificacion) {
+                const codigoVerificacionAPI = String(respuesta.data.codigo_verificacion); // Asegurar que sea string para la comparación
 
-                return gotoFlow(flujoPreguntaCantidad);
+                if (codigoVerificacionAPI === codigoVerificacionUsuario) {
+                    const nombreCompleto = respuesta.data.nombre_completo;
+                    const successMessage = `✅ ¡Gracias! Tu DNI ha sido validado, ${nombreCompleto}.`;
+                    await flowDynamic(successMessage);
+                    console.log(formatMessageLog('sent', ctx.from, successMessage));
+
+                    rutasDeConversacion.set(ctx.from, { ...infoRuta, validated: true, name: nombreCompleto, verificationCode: codigoVerificacionAPI });
+
+                    return gotoFlow(flujoPreguntaCantidad);
+                } else {
+                    const validationFailedMessage = '❌ El código de verificación no coincide. Por favor, verifica tu número de DNI y el código e inténtalo de nuevo.';
+                    await flowDynamic(validationFailedMessage);
+                    console.log(formatMessageLog('sent', ctx.from, '❌ Código de verificación incorrecto.'));
+                    return fallBack();
+                }
             } else {
-                const validationFailedMessage = '❌ Lo siento, no pudimos validar tu DNI. Por favor, verifica el número e inténtalo de nuevo.';
+                const validationFailedMessage = '❌ Lo siento, no pudimos validar tu DNI o el código de verificación no está disponible. Por favor, verifica el número e inténtalo de nuevo.';
                 await flowDynamic(validationFailedMessage);
-                // CONSOLE.LOG PARA MENSAJE ENVIADO (VALIDACION FALLIDA)
-                console.log(formatMessageLog('sent', ctx.from, validationFailedMessage));
+                console.log(formatMessageLog('sent', ctx.from, '❌ Validación de DNI/código fallida desde la API.'));
                 return fallBack();
             }
         } catch (error) {
-            console.error('Error al validar DNI:', error);
+            console.error('Error al validar DNI con código de verificación:', error);
             const errorMessage = '⚠️ Ocurrió un error técnico al validar tu DNI. Por favor, inténtalo más tarde.';
             await flowDynamic(errorMessage);
-            // CONSOLE.LOG PARA MENSAJE ENVIADO (ERROR TECNICO)
             console.log(formatMessageLog('sent', ctx.from, errorMessage));
             return fallBack();
         }
@@ -353,7 +385,8 @@ const main = async () => {
     const adapterDB = new MockAdapter();
     const adapterFlows = createFlow([
         flujoBienvenida, // Asegura que el flujo de bienvenida sea el primero
-        flujoValidacionDni,
+        flujoValidacionDni, // flujoValidacionDni debería estar antes
+        flujoPedirCodigoVerificacion, // Añadimos el nuevo flujo aquí
         flujoPreguntaCantidad,
         flujoRecopilacionDireccion,
         flujoConfirmarEntrega,

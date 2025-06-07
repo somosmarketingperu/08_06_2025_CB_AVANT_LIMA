@@ -1,20 +1,15 @@
 [handleMsg]:  {
   key: {
-    remoteJid: '51969654895@s.whatsapp.net',
+    remoteJid: '51904727244@s.whatsapp.net',
     fromMe: false,
-    id: '5C6C62C7E1C306545E741171ECEA05A6',
+    id: 'CFA1AA12BE8399FC4E9089D2686983F9',
     participant: undefined
   },
-  messageTimestamp: 1749218969,
-  pushName: 'Silvia Quispe Rujel',
+  messageTimestamp: 1749278026,
+  pushName: 'Somos Marketing Perú',
   broadcast: false,
   message: Message {
-    extendedTextMessage: ExtendedTextMessage {
-      text: 'Hola',
-      previewType: 0,
-      contextInfo: [ContextInfo],
-      inviteLinkGroupTypeV2: 0
-    },
+    conversation: 'Hola',
     messageContextInfo: MessageContextInfo {
       deviceListMetadata: [DeviceListMetadata],
       deviceListMetadataVersion: 2,
@@ -22,11 +17,11 @@
     }
   },
   body: 'Hola',
-  from: '51969654895'
+  from: '51904727244'
 }
 [QUEUE_SE_ENVIO]:  {
-  ref: 'ans_2a8f49b1-176c-4528-96a4-81fac1d146b1',
-  keyword: 'key_ce3b38e0-1b0f-421c-b9c6-38773105a3ce',
+  ref: 'ans_11c6066c-8db7-4b39-a4e8-0bc4f3659e2e',
+  keyword: 'key_9ca2a896-4072-438d-8dcf-9cf743d6dc53',
   answer: '__call_action__',
   options: {
     media: null,
@@ -40,11 +35,11 @@
     keyword: {},
     callback: true
   },
-  refSerialize: '0422cb0753b826c45de746f890d48b2a'
+  refSerialize: 'fcb8c9c614f7b341de3c28f06efff34e'
 }
 [QUEUE_SE_ENVIO]:  {
-  ref: 'ans_3e9dc07a-e72d-4a3e-a47a-774cb1ff8bd4',
-  keyword: 'ans_2a8f49b1-176c-4528-96a4-81fac1d146b1',
+  ref: 'ans_5e3aca01-3295-4620-b3f5-fd7bcb48bd67',
+  keyword: 'ans_11c6066c-8db7-4b39-a4e8-0bc4f3659e2e',
   answer: 'Por favor, revisa nuestros *Términos y Condiciones (TyC)* adjuntos para continuar con el servicio. Una vez que los hayas leído, por favor, responde **Sí** a la siguiente pregunta si estás de acuerdo.',
   options: {
     media: null,
@@ -58,11 +53,11 @@
     keyword: {},
     callback: true
   },
-  refSerialize: 'f054a1e8a8d82959ea54762a50e58157'
+  refSerialize: 'd8e1afc0e1622daee5f0639fc6278881'
 }
 [QUEUE_SE_ENVIO]:  {
-  ref: 'ans_ae4021f0-8085-4766-973a-2e64281ef87d',
-  keyword: 'ans_3e9dc07a-e72d-4a3e-a47a-774cb1ff8bd4',
+  ref: 'ans_e4dfbe5f-3da9-4fba-b309-3ff468894699',
+  keyword: 'ans_5e3aca01-3295-4620-b3f5-fd7bcb48bd67',
   answer: '📌 **¿Estás de acuerdo con el servicio?** Responde **Sí** para continuar 🙌.',
   options: {
     media: null,
@@ -76,25 +71,20 @@
     keyword: {},
     callback: true
   },
-  refSerialize: 'cc6088a9202c7034ce2faf57fd70f82e'
+  refSerialize: '43501457d285a993b28f652408fd2595'
 }
 [handleMsg]:  {
   key: {
-    remoteJid: '51969654895@s.whatsapp.net',
+    remoteJid: '51904727244@s.whatsapp.net',
     fromMe: false,
-    id: '2332C409614F52D3C74D7B52087839A4',
+    id: 'AA645FB14A02B7DE8E5BF386DA7C962C',
     participant: undefined
   },
-  messageTimestamp: 1749218976,
-  pushName: 'Silvia Quispe Rujel',
+  messageTimestamp: 1749278033,
+  pushName: 'Somos Marketing Perú',
   broadcast: false,
   message: Message {
-    extendedTextMessage: ExtendedTextMessage {
-      text: 'Si',
-      previewType: 0,
-      contextInfo: [ContextInfo],
-      inviteLinkGroupTypeV2: 0
-    },
+    conversation: 'Si',
     messageContextInfo: MessageContextInfo {
       deviceListMetadata: [DeviceListMetadata],
       deviceListMetadataVersion: 2,
@@ -102,25 +92,20 @@
     }
   },
   body: 'Si',
-  from: '51969654895'
+  from: '51904727244'
 }
 [handleMsg]:  {
   key: {
-    remoteJid: '51969654895@s.whatsapp.net',
+    remoteJid: '51904727244@s.whatsapp.net',
     fromMe: false,
-    id: '1C2A388EDC11F55FDEA7AA780F75769A',
+    id: '87A310E63C8EE4F41081AA4FCEDD8CCE',
     participant: undefined
   },
-  messageTimestamp: 1749218987,
-  pushName: 'Silvia Quispe Rujel',
+  messageTimestamp: 1749278038,
+  pushName: 'Somos Marketing Perú',
   broadcast: false,
   message: Message {
-    extendedTextMessage: ExtendedTextMessage {
-      text: 'Si',
-      previewType: 0,
-      contextInfo: [ContextInfo],
-      inviteLinkGroupTypeV2: 0
-    },
+    conversation: 'Si',
     messageContextInfo: MessageContextInfo {
       deviceListMetadata: [DeviceListMetadata],
       deviceListMetadataVersion: 2,
@@ -128,11 +113,11 @@
     }
   },
   body: 'Si',
-  from: '51969654895'
+  from: '51904727244'
 }
 [QUEUE_SE_ENVIO]:  {
-  ref: 'ans_b585ffd0-09c4-4f9c-8bd1-5d2d1016227b',
-  keyword: 'key_311acfea-de3a-4014-8f45-2abf426508c2',
+  ref: 'ans_7cffd54f-1ba1-4f3a-ab41-63eeec304f7a',
+  keyword: 'key_e9fb4cf0-14f3-4d16-a884-4b7f0c12d2bf',
   answer: 'Por favor, ingresa tu número de DNI para validar tu identidad:',
   options: {
     media: null,
@@ -146,109 +131,110 @@
     keyword: {},
     callback: true
   },
-  refSerialize: 'fde7226f53bcb93feb0ab20a08071290'
+  refSerialize: 'aa0b92c50a397465366ac2295353c93f'
 }
 [handleMsg]:  {
   key: {
-    remoteJid: '51969654895@s.whatsapp.net',
+    remoteJid: '51904727244@s.whatsapp.net',
     fromMe: false,
-    id: '4426784A7A5BCCE125248722FC84EFE2',
+    id: 'A779DD76376B238C86EDF6682F0C7098',
     participant: undefined
   },
-  messageTimestamp: 1749218998,
-  pushName: 'Silvia Quispe Rujel',
+  messageTimestamp: 1749278048,
+  pushName: 'Somos Marketing Perú',
   broadcast: false,
   message: Message {
-    extendedTextMessage: ExtendedTextMessage {
-      text: '02782847',
-      previewType: 0,
-      contextInfo: [ContextInfo],
-      inviteLinkGroupTypeV2: 0
-    },
+    conversation: '77079262',
     messageContextInfo: MessageContextInfo {
       deviceListMetadata: [DeviceListMetadata],
       deviceListMetadataVersion: 2,
       messageSecret: [Uint8Array]
     }
   },
-  body: '02782847',
-  from: '51969654895'
+  body: '77079262',
+  from: '51904727244'
 }
 [handleMsg]:  {
   key: {
-    remoteJid: '51969654895@s.whatsapp.net',
+    remoteJid: '51904727244@s.whatsapp.net',
     fromMe: false,
-    id: 'A31569D3CF45D46FC2A22C783EABBADF',
+    id: '3217201659B772EB5172B1A1B3983C09',
     participant: undefined
   },
-  messageTimestamp: 1749219017,
-  pushName: 'Silvia Quispe Rujel',
+  messageTimestamp: 1749278056,
+  pushName: 'Somos Marketing Perú',
   broadcast: false,
   message: Message {
-    extendedTextMessage: ExtendedTextMessage {
-      text: '3',
-      previewType: 0,
-      contextInfo: [ContextInfo],
-      inviteLinkGroupTypeV2: 0
-    },
+    conversation: '8',
     messageContextInfo: MessageContextInfo {
       deviceListMetadata: [DeviceListMetadata],
       deviceListMetadataVersion: 2,
       messageSecret: [Uint8Array]
     }
   },
-  body: '3',
-  from: '51969654895'
+  body: '8',
+  from: '51904727244'
 }
 [handleMsg]:  {
   key: {
-    remoteJid: '51969654895@s.whatsapp.net',
+    remoteJid: '51904727244@s.whatsapp.net',
     fromMe: false,
-    id: 'CC4B377FFFE1C6FD04284D18793FDDE3',
+    id: '80E53E5F8AAA3AF355994B8416C94A73',
     participant: undefined
   },
-  messageTimestamp: 1749219041,
-  pushName: 'Silvia Quispe Rujel',
+  messageTimestamp: 1749278165,
+  pushName: 'Somos Marketing Perú',
   broadcast: false,
   message: Message {
-    extendedTextMessage: ExtendedTextMessage {
-      text: 'Jirón Tarapacá 260 Magdalena',
-      previewType: 0,
-      contextInfo: [ContextInfo],
-      inviteLinkGroupTypeV2: 0
-    },
+    conversation: '10',
     messageContextInfo: MessageContextInfo {
       deviceListMetadata: [DeviceListMetadata],
       deviceListMetadataVersion: 2,
       messageSecret: [Uint8Array]
     }
   },
-  body: 'Jirón Tarapacá 260 Magdalena',
-  from: '51969654895'
+  body: '10',
+  from: '51904727244'
 }
 [handleMsg]:  {
   key: {
-    remoteJid: '51969654895@s.whatsapp.net',
+    remoteJid: '51904727244@s.whatsapp.net',
     fromMe: false,
-    id: 'BDB80EFBB66C9D2552AF476FCBB36D2E',
+    id: '4D34407EEB559E7C1EC9C1812D0BADB3',
     participant: undefined
   },
-  messageTimestamp: 1749219070,
-  pushName: 'Silvia Quispe Rujel',
+  messageTimestamp: 1749278184,
+  pushName: 'Somos Marketing Perú',
   broadcast: false,
   message: Message {
-    extendedTextMessage: ExtendedTextMessage {
-      text: 'Si',
-      previewType: 0,
-      contextInfo: [ContextInfo],
-      inviteLinkGroupTypeV2: 0
-    },
+    conversation: 'Lima',
     messageContextInfo: MessageContextInfo {
       deviceListMetadata: [DeviceListMetadata],
       deviceListMetadataVersion: 2,
       messageSecret: [Uint8Array]
     }
   },
-  body: 'Si',
-  from: '51969654895'
+  body: 'Lima',
+  from: '51904727244'
+}
+[handleMsg]:  {
+  key: {
+    remoteJid: '51904727244@s.whatsapp.net',
+    fromMe: false,
+    id: '67CD21FC6209E642B927B0AE6D68B20E',
+    participant: undefined
+  },
+  messageTimestamp: 1749278190,
+  pushName: 'Somos Marketing Perú',
+  broadcast: false,
+  message: Message {
+    conversation: 'Sí',
+    messageContextInfo: MessageContextInfo {
+      deviceListMetadata: [DeviceListMetadata],
+      deviceListMetadataVersion: 2,
+      messageSecret: [Uint8Array]
+    }
+  },
+  body: 'Sí',
+  from: '51904727244'
 }
