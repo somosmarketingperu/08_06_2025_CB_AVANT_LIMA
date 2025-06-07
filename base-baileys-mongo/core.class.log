@@ -1,0 +1,254 @@
+[handleMsg]:  {
+  key: {
+    remoteJid: '51969654895@s.whatsapp.net',
+    fromMe: false,
+    id: '5C6C62C7E1C306545E741171ECEA05A6',
+    participant: undefined
+  },
+  messageTimestamp: 1749218969,
+  pushName: 'Silvia Quispe Rujel',
+  broadcast: false,
+  message: Message {
+    extendedTextMessage: ExtendedTextMessage {
+      text: 'Hola',
+      previewType: 0,
+      contextInfo: [ContextInfo],
+      inviteLinkGroupTypeV2: 0
+    },
+    messageContextInfo: MessageContextInfo {
+      deviceListMetadata: [DeviceListMetadata],
+      deviceListMetadataVersion: 2,
+      messageSecret: [Uint8Array]
+    }
+  },
+  body: 'Hola',
+  from: '51969654895'
+}
+[QUEUE_SE_ENVIO]:  {
+  ref: 'ans_2a8f49b1-176c-4528-96a4-81fac1d146b1',
+  keyword: 'key_ce3b38e0-1b0f-421c-b9c6-38773105a3ce',
+  answer: '__call_action__',
+  options: {
+    media: null,
+    buttons: [],
+    capture: false,
+    child: null,
+    delay: 0,
+    idle: null,
+    ref: null,
+    nested: [],
+    keyword: {},
+    callback: true
+  },
+  refSerialize: '0422cb0753b826c45de746f890d48b2a'
+}
+[QUEUE_SE_ENVIO]:  {
+  ref: 'ans_3e9dc07a-e72d-4a3e-a47a-774cb1ff8bd4',
+  keyword: 'ans_2a8f49b1-176c-4528-96a4-81fac1d146b1',
+  answer: 'Por favor, revisa nuestros *Términos y Condiciones (TyC)* adjuntos para continuar con el servicio. Una vez que los hayas leído, por favor, responde **Sí** a la siguiente pregunta si estás de acuerdo.',
+  options: {
+    media: null,
+    buttons: [],
+    capture: false,
+    child: null,
+    delay: 0,
+    idle: null,
+    ref: null,
+    nested: [],
+    keyword: {},
+    callback: true
+  },
+  refSerialize: 'f054a1e8a8d82959ea54762a50e58157'
+}
+[QUEUE_SE_ENVIO]:  {
+  ref: 'ans_ae4021f0-8085-4766-973a-2e64281ef87d',
+  keyword: 'ans_3e9dc07a-e72d-4a3e-a47a-774cb1ff8bd4',
+  answer: '📌 **¿Estás de acuerdo con el servicio?** Responde **Sí** para continuar 🙌.',
+  options: {
+    media: null,
+    buttons: [],
+    capture: true,
+    child: null,
+    delay: 0,
+    idle: null,
+    ref: null,
+    nested: [],
+    keyword: {},
+    callback: true
+  },
+  refSerialize: 'cc6088a9202c7034ce2faf57fd70f82e'
+}
+[handleMsg]:  {
+  key: {
+    remoteJid: '51969654895@s.whatsapp.net',
+    fromMe: false,
+    id: '2332C409614F52D3C74D7B52087839A4',
+    participant: undefined
+  },
+  messageTimestamp: 1749218976,
+  pushName: 'Silvia Quispe Rujel',
+  broadcast: false,
+  message: Message {
+    extendedTextMessage: ExtendedTextMessage {
+      text: 'Si',
+      previewType: 0,
+      contextInfo: [ContextInfo],
+      inviteLinkGroupTypeV2: 0
+    },
+    messageContextInfo: MessageContextInfo {
+      deviceListMetadata: [DeviceListMetadata],
+      deviceListMetadataVersion: 2,
+      messageSecret: [Uint8Array]
+    }
+  },
+  body: 'Si',
+  from: '51969654895'
+}
+[handleMsg]:  {
+  key: {
+    remoteJid: '51969654895@s.whatsapp.net',
+    fromMe: false,
+    id: '1C2A388EDC11F55FDEA7AA780F75769A',
+    participant: undefined
+  },
+  messageTimestamp: 1749218987,
+  pushName: 'Silvia Quispe Rujel',
+  broadcast: false,
+  message: Message {
+    extendedTextMessage: ExtendedTextMessage {
+      text: 'Si',
+      previewType: 0,
+      contextInfo: [ContextInfo],
+      inviteLinkGroupTypeV2: 0
+    },
+    messageContextInfo: MessageContextInfo {
+      deviceListMetadata: [DeviceListMetadata],
+      deviceListMetadataVersion: 2,
+      messageSecret: [Uint8Array]
+    }
+  },
+  body: 'Si',
+  from: '51969654895'
+}
+[QUEUE_SE_ENVIO]:  {
+  ref: 'ans_b585ffd0-09c4-4f9c-8bd1-5d2d1016227b',
+  keyword: 'key_311acfea-de3a-4014-8f45-2abf426508c2',
+  answer: 'Por favor, ingresa tu número de DNI para validar tu identidad:',
+  options: {
+    media: null,
+    buttons: [],
+    capture: true,
+    child: null,
+    delay: 0,
+    idle: null,
+    ref: null,
+    nested: [],
+    keyword: {},
+    callback: true
+  },
+  refSerialize: 'fde7226f53bcb93feb0ab20a08071290'
+}
+[handleMsg]:  {
+  key: {
+    remoteJid: '51969654895@s.whatsapp.net',
+    fromMe: false,
+    id: '4426784A7A5BCCE125248722FC84EFE2',
+    participant: undefined
+  },
+  messageTimestamp: 1749218998,
+  pushName: 'Silvia Quispe Rujel',
+  broadcast: false,
+  message: Message {
+    extendedTextMessage: ExtendedTextMessage {
+      text: '02782847',
+      previewType: 0,
+      contextInfo: [ContextInfo],
+      inviteLinkGroupTypeV2: 0
+    },
+    messageContextInfo: MessageContextInfo {
+      deviceListMetadata: [DeviceListMetadata],
+      deviceListMetadataVersion: 2,
+      messageSecret: [Uint8Array]
+    }
+  },
+  body: '02782847',
+  from: '51969654895'
+}
+[handleMsg]:  {
+  key: {
+    remoteJid: '51969654895@s.whatsapp.net',
+    fromMe: false,
+    id: 'A31569D3CF45D46FC2A22C783EABBADF',
+    participant: undefined
+  },
+  messageTimestamp: 1749219017,
+  pushName: 'Silvia Quispe Rujel',
+  broadcast: false,
+  message: Message {
+    extendedTextMessage: ExtendedTextMessage {
+      text: '3',
+      previewType: 0,
+      contextInfo: [ContextInfo],
+      inviteLinkGroupTypeV2: 0
+    },
+    messageContextInfo: MessageContextInfo {
+      deviceListMetadata: [DeviceListMetadata],
+      deviceListMetadataVersion: 2,
+      messageSecret: [Uint8Array]
+    }
+  },
+  body: '3',
+  from: '51969654895'
+}
+[handleMsg]:  {
+  key: {
+    remoteJid: '51969654895@s.whatsapp.net',
+    fromMe: false,
+    id: 'CC4B377FFFE1C6FD04284D18793FDDE3',
+    participant: undefined
+  },
+  messageTimestamp: 1749219041,
+  pushName: 'Silvia Quispe Rujel',
+  broadcast: false,
+  message: Message {
+    extendedTextMessage: ExtendedTextMessage {
+      text: 'Jirón Tarapacá 260 Magdalena',
+      previewType: 0,
+      contextInfo: [ContextInfo],
+      inviteLinkGroupTypeV2: 0
+    },
+    messageContextInfo: MessageContextInfo {
+      deviceListMetadata: [DeviceListMetadata],
+      deviceListMetadataVersion: 2,
+      messageSecret: [Uint8Array]
+    }
+  },
+  body: 'Jirón Tarapacá 260 Magdalena',
+  from: '51969654895'
+}
+[handleMsg]:  {
+  key: {
+    remoteJid: '51969654895@s.whatsapp.net',
+    fromMe: false,
+    id: 'BDB80EFBB66C9D2552AF476FCBB36D2E',
+    participant: undefined
+  },
+  messageTimestamp: 1749219070,
+  pushName: 'Silvia Quispe Rujel',
+  broadcast: false,
+  message: Message {
+    extendedTextMessage: ExtendedTextMessage {
+      text: 'Si',
+      previewType: 0,
+      contextInfo: [ContextInfo],
+      inviteLinkGroupTypeV2: 0
+    },
+    messageContextInfo: MessageContextInfo {
+      deviceListMetadata: [DeviceListMetadata],
+      deviceListMetadataVersion: 2,
+      messageSecret: [Uint8Array]
+    }
+  },
+  body: 'Si',
+  from: '51969654895'
+}
