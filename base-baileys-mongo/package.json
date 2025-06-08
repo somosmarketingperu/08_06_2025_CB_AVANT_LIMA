@@ -19,8 +19,9 @@
         "cache-manager": "5.2.4",
         "mime-types": "2.1.35",
         "mongodb": "^4.17.2",
-        "pdfkit": "^0.17.1",
         "nodemailer": "^6.9.13",
+        "pdfkit": "^0.17.1",
+        "qrcode": "^1.5.4",
         "wa-sticker-formatter": "4.4.4"
     },
     "devDependencies": {
