@@ -6,6 +6,7 @@ const https = require('https');
 const nodemailer = require('nodemailer');
 const PDFDocument = require('pdfkit'); // Importa PDFKit para generación de PDF
 const fs = require('fs'); // Importa fs para manejar archivos si es necesario, aunque el PDF será un buffer para el correo
+const qrcode = require('qrcode'); // CAMBIADO: Importa qrcode en lugar de EasyQRCode
 
 // Estado temporal de usuarios (memoria volátil)
 const rutasDeConversacion = new Map();
@@ -82,6 +83,25 @@ const validarDni = async (dni, token) => {
 
 // Función para generar la cotización en PDF
 const generarCotizacionPDF = async (clienteInfo) => {
+    // Definir el número de WhatsApp de la empresa (siempre el mismo)
+    const whatsappNumber = '51999900396'; // Número de Somos Marketing Perú SAC
+
+    // Definir el mensaje pre-llenado para el QR (personalizado con el nombre del cliente)
+    // El texto debe ser codificado para URL
+    const prefilledMessage = encodeURIComponent(
+        `Hola 👋, soy ${clienteInfo.name}, estoy interesado en el vendedor automatizado de bolsas. ¿Me puedes dar más información? 🤖🛍️`
+    );
+
+    // Enlace de WhatsApp con el mensaje pre-llenado
+    const whatsappLink = `https://wa.me/${whatsappNumber}?text=${prefilledMessage}`;
+
+    // --- Generación del Código QR con qrcode ---
+    const qrCodeBuffer = await qrcode.toBuffer(whatsappLink, {
+        errorCorrectionLevel: 'H', // Nivel de corrección de errores (High)
+        width: 42, // CAMBIADO: Nuevo tamaño del QR
+        margin: 1 // Margen alrededor del QR
+    });
+
     return new Promise((resolve, reject) => {
         // Configuración del documento: A4 vertical con altura ajustada y márgenes pequeños
         const doc = new PDFDocument({
@@ -149,12 +169,21 @@ const generarCotizacionPDF = async (clienteInfo) => {
         // Número de Cotización (alineado a la derecha, al nivel del nombre de la empresa)
         const quoteNumberX = startX;
         const quoteNumberY = companyNameY;
-        doc.fontSize(8)
+        doc.fontSize(10)
            .text('Cotización A-00001', quoteNumberX, quoteNumberY, { align: 'right', width: usableWidth });
 
-        // Línea separadora: 8pt debajo del elemento más bajo del encabezado (logo o contacto)
+        // --- Insertar el QR aquí (lado derecho inferior del encabezado) ---
+        const qrSize = 42; // CAMBIADO: Nuevo tamaño del QR
+        const qrX = startX + usableWidth - qrSize; // Alineado a la derecha
+        const qrY = quoteNumberY + 8; // 8pt debajo del inicio del texto de cotización
+
+        doc.image(qrCodeBuffer, qrX, qrY, { width: qrSize, height: qrSize }); // CAMBIADO: width y height a 42
+
+        // Línea separadora: 8pt debajo del elemento más bajo del encabezado (logo o contacto o QR)
         const headerBottomY = Math.max(logoY + logoHeight, contactEndY);
-        const separatorY = headerBottomY + 8;
+        // Aseguramos que la línea se dibuje debajo del QR si este es el elemento más bajo
+        const newHeaderBottomY = Math.max(headerBottomY, qrY + qrSize);
+        const separatorY = newHeaderBottomY + 8; // Ajustar separador basado en el nuevo fondo del encabezado
         doc.moveTo(startX, separatorY)
            .lineTo(startX + usableWidth, separatorY)
            .stroke();
@@ -304,6 +333,7 @@ const enviarCorreoConfirmacion = async (destinatarioEmail, nombreCliente, cantid
                 <li>Total a pagar: <strong>S/${precioTotal.toFixed(2)}</strong></li>
             </ul>
             <p>Adjunto encontrarás tu cotización en formato PDF.</p>
+            <p style="font-weight:bold; color:#FF0000;">⚠️ Importante: El PDF adjunto está protegido con contraseña. Por favor, utiliza tu número de DNI como clave para abrirlo. ⚠️</p>
             <p>En breve nos pondremos en contacto contigo para coordinar los detalles finales de la entrega.</p>
             <p>¡Gracias por elegirnos!</p>
             <p>Atentamente,</p>
