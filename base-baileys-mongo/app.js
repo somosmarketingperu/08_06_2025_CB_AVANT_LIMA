@@ -3,6 +3,7 @@ const QRPortalWeb = require('@bot-whatsapp/portal');
 const BaileysProvider = require('@bot-whatsapp/provider/baileys');
 const MockAdapter = require('@bot-whatsapp/database/mock');
 const https = require('https');
+const nodemailer = require('nodemailer');
 
 // Estado temporal de usuarios (memoria volátil)
 const rutasDeConversacion = new Map();
@@ -75,6 +76,45 @@ const validarDni = async (dni, token) => {
         req.write(JSON.stringify({ dni }));
         req.end();
     });
+};
+
+// Función para enviar correo electrónico
+const enviarCorreoConfirmacion = async (destinatarioEmail, nombreCliente, cantidadBolsas, precioTotal) => {
+    const transporter = nodemailer.createTransport({
+        host: 'smtp.gmail.com',
+        port: 465,
+        secure: true, // Usa SSL/TLS
+        auth: {
+            user: 'contacto@somosmarketingperu.com', // Tu correo de Google Workspace
+            pass: 'zatqdjnollcaknyu' // !!! REEMPLAZA CON TU CONTRASEÑA DE APLICACIÓN GENERADA !!!
+        }
+    });
+
+    const mailOptions = {
+        from: 'contacto@somosmarketingperu.com',
+        to: destinatarioEmail,
+        subject: `¡Pedido Confirmado en VENDOR BOLSAS PLASTICO, ${nombreCliente}! 🎉`,
+        html: `
+            <h1>Hola ${nombreCliente},</h1>
+            <p>¡Gracias por tu pedido de bolsas de desecho en VENDOR BOLSAS PLASTICO!</p>
+            <p>Hemos recibido la confirmación de tu pedido:</p>
+            <ul>
+                <li>Cantidad de paquetes: <strong>${cantidadBolsas}</strong></li>
+                <li>Total a pagar: <strong>S/${precioTotal.toFixed(2)}</strong></li>
+            </ul>
+            <p>En breve nos pondremos en contacto contigo para coordinar los detalles finales de la entrega.</p>
+            <p>Atentamente,<br>
+            El equipo de VENDOR BOLSAS PLASTICO</p>
+            <p>Si tienes alguna pregunta, no dudes en contactarnos.</p>
+        `
+    };
+
+    try {
+        await transporter.sendMail(mailOptions);
+        console.log(formatMessageLog('info', 'BOT -> EXTERNAL', `Correo de confirmación enviado a ${destinatarioEmail}`));
+    } catch (error) {
+        console.error(formatMessageLog('error', 'BOT -> EXTERNAL', `Error al enviar correo a ${destinatarioEmail}: ${error.message}`));
+    }
 };
 
 // FLUJOS DE CONVERSACIÓN
@@ -179,7 +219,13 @@ const flujoConfirmarEntrega = addKeyword([])
         if (userResponse === 'sí' || userResponse === 'si') {
             await flowDynamic('¡Excelente! Tu pedido ha sido confirmado. Un asesor se pondrá en contacto contigo para coordinar los detalles finales de la entrega.');
             console.log(formatMessageLog('sent', ctx.from, 'Pedido confirmado.'));
-            return gotoFlow(flujoFinal_Bolsas);
+            
+            // Guardar confirmación en el estado de conversación
+            const infoRuta = rutasDeConversacion.get(ctx.from) || {};
+            rutasDeConversacion.set(ctx.from, { ...infoRuta, pedidoConfirmado: true });
+
+            // Redirigir al flujo para pedir el correo electrónico
+            return gotoFlow(flujoPedirCorreoElectronico);
         } else if (userResponse === 'no') {
             await flowDynamic('Entendido. Puedes reiniciar el proceso de pedido escribiendo "Hola".');
             console.log(formatMessageLog('sent', ctx.from, 'Pedido no confirmado, reiniciando.'));
@@ -272,6 +318,40 @@ const flujoPedirCodigoVerificacion = addKeyword([])
             await flowDynamic(errorMessage);
             console.log(formatMessageLog('sent', ctx.from, errorMessage));
             return fallBack();
+        }
+    });
+
+// Nuevo Flujo para pedir el correo electrónico
+const flujoPedirCorreoElectronico = addKeyword([])
+    .addAnswer('Para enviarte la confirmación de tu pedido, por favor, ingresa tu dirección de correo electrónico:', { capture: true }, async (ctx, { flowDynamic, gotoFlow, fallBack }) => {
+        console.log(formatMessageLog('sent', ctx.from, 'Solicitando correo electrónico.'));
+        console.log(formatMessageLog('received', ctx.from, ctx.body));
+
+        const emailUsuario = ctx.body.trim();
+
+        // Validación básica de formato de correo electrónico
+        const emailRegex = /^[\w.-]+@[\w.-]+\.[a-zA-Z]{2,4}$/;
+        if (!emailRegex.test(emailUsuario)) {
+            await flowDynamic('❌ Formato de correo electrónico inválido. Por favor, ingresa una dirección de correo válida (ej. tu@ejemplo.com).');
+            console.log(formatMessageLog('sent', ctx.from, '❌ Formato de correo inválido.'));
+            return fallBack();
+        }
+
+        const infoRuta = rutasDeConversacion.get(ctx.from) || {};
+        infoRuta.email = emailUsuario;
+        rutasDeConversacion.set(ctx.from, infoRuta);
+        console.log(formatMessageLog('debug', ctx.from, `DEBUG: Correo electrónico actualizado para ${ctx.from}.`));
+
+        // Si el pedido fue confirmado, enviar el correo
+        if (infoRuta.pedidoConfirmado) {
+            await flowDynamic('¡Correo recibido! Enviando la confirmación de tu pedido...');
+            await enviarCorreoConfirmacion(infoRuta.email, infoRuta.name, infoRuta.quantity, infoRuta.totalPrice);
+            await flowDynamic('🎉 ¡Pedido y correo de confirmación enviados! Gracias por tu compra.');
+            return gotoFlow(flujoFinal_Bolsas);
+        } else {
+            // Esto no debería pasar si el flujo se sigue correctamente
+            await flowDynamic('Parece que hubo un problema con la confirmación de tu pedido. Por favor, intenta de nuevo escribiendo "Hola".');
+            return gotoFlow(flujoBienvenida);
         }
     });
 
@@ -385,11 +465,12 @@ const main = async () => {
     const adapterDB = new MockAdapter();
     const adapterFlows = createFlow([
         flujoBienvenida, // Asegura que el flujo de bienvenida sea el primero
-        flujoValidacionDni, // flujoValidacionDni debería estar antes
-        flujoPedirCodigoVerificacion, // Añadimos el nuevo flujo aquí
+        flujoValidacionDni,
+        flujoPedirCodigoVerificacion,
         flujoPreguntaCantidad,
         flujoRecopilacionDireccion,
         flujoConfirmarEntrega,
+        flujoPedirCorreoElectronico,
         flujoFinal_Bolsas,
         flujoContratarServicios_Bolsas
     ]);
