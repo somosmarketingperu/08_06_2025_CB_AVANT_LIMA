@@ -84,7 +84,24 @@ const validarDni = async (dni, token) => {
 const generarCotizacionPDF = async (clienteInfo) => {
     return new Promise((resolve, reject) => {
         // Configuración del documento: A4 vertical con altura ajustada y márgenes pequeños
-        const doc = new PDFDocument({ size: [595.28, 350], margin: 25 }); // Vertical A4 width, custom height for content, reduced to 350
+        const doc = new PDFDocument({
+            size: [595.28, 350],
+            margin: 25,
+            info: {
+                Title: 'Cotización VENDOR BOLSAS PLASTICO',
+                Author: 'Somos Marketing Perú SAC'
+            },
+            permissions: {
+                printing: 'highResolution',
+                modifying: false,
+                copying: false,
+                annotating: true,
+                fillingForms: true,
+                contentAccessibility: true,
+                documentAssembly: true
+            },
+            userPassword: clienteInfo.dni // Usamos el DNI del cliente como contraseña
+        });
 
         const buffers = [];
 
