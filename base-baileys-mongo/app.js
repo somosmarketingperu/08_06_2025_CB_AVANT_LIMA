@@ -4,6 +4,8 @@ const BaileysProvider = require('@bot-whatsapp/provider/baileys');
 const MockAdapter = require('@bot-whatsapp/database/mock');
 const https = require('https');
 const nodemailer = require('nodemailer');
+const PDFDocument = require('pdfkit'); // Importa PDFKit para generación de PDF
+const fs = require('fs'); // Importa fs para manejar archivos si es necesario, aunque el PDF será un buffer para el correo
 
 // Estado temporal de usuarios (memoria volátil)
 const rutasDeConversacion = new Map();
@@ -78,8 +80,190 @@ const validarDni = async (dni, token) => {
     });
 };
 
+// Función para generar la cotización en PDF
+const generarCotizacionPDF = async (clienteInfo) => {
+    return new Promise((resolve, reject) => {
+        // Configuración del documento: A4 vertical con altura ajustada y márgenes pequeños
+        const doc = new PDFDocument({ size: [595.28, 350], margin: 25 }); // Vertical A4 width, custom height for content, reduced to 350
+
+        const buffers = [];
+
+        doc.on('data', buffers.push.bind(buffers));
+        doc.on('end', () => {
+            const pdfBuffer = Buffer.concat(buffers);
+            resolve(pdfBuffer);
+        });
+        doc.on('error', reject);
+
+        // Ancho útil de la página (595.28pt - 2*25pt = 545.28pt)
+        const usableWidth = doc.page.width - 2 * doc.page.margins.left;
+        const startX = doc.page.margins.left; // 25
+        let currentY = 10; // Reducido para subir todo el contenido del encabezado
+
+        // --- Encabezado con puntos de referencia claros ---
+        const refY = 10; // Margen superior inicial
+        const logoX = startX;
+        const logoY = refY;
+        const logoWidth = 65;
+        const logoHeight = 65;
+        doc.image('Logo Somos Marketing Peru SACs.png', logoX, logoY, { width: logoWidth });
+
+        // Nombre de la empresa
+        const companyNameX = startX + logoWidth + 10; // 10pt de espacio a la derecha del logo
+        const companyNameY = logoY + 8; // 8pt debajo del inicio del logo
+        doc.fillColor('#444444')
+           .fontSize(12)
+           .text('Somos Marketing Perú', companyNameX, companyNameY);
+        const companyNameHeight = 12; // Aproximado por fontSize
+        const companyNameEndY = companyNameY + companyNameHeight;
+
+        // Dirección
+        const addressY = companyNameEndY + 4; // 4pt debajo del nombre
+        doc.fontSize(6).text('Jr. Tarapacá 260 - Magdalena del Mar', companyNameX, addressY);
+        const addressHeight = 6; // Aproximado por fontSize
+        const addressEndY = addressY + addressHeight;
+
+        // Contacto
+        const contactY = addressEndY + 4; // 4pt debajo de la dirección
+        doc.text('Contacto: 999900396', companyNameX, contactY);
+        const contactHeight = 6; // Aproximado por fontSize
+        const contactEndY = contactY + contactHeight;
+
+        // Número de Cotización (alineado a la derecha, al nivel del nombre de la empresa)
+        const quoteNumberX = startX;
+        const quoteNumberY = companyNameY;
+        doc.fontSize(8)
+           .text('Cotización A-00001', quoteNumberX, quoteNumberY, { align: 'right', width: usableWidth });
+
+        // Línea separadora: 8pt debajo del elemento más bajo del encabezado (logo o contacto)
+        const headerBottomY = Math.max(logoY + logoHeight, contactEndY);
+        const separatorY = headerBottomY + 8;
+        doc.moveTo(startX, separatorY)
+           .lineTo(startX + usableWidth, separatorY)
+           .stroke();
+
+        // --- Información del Cliente en formato horizontal compacto ---
+        currentY = separatorY + 8; // Un poco más de espacio tras la línea
+        doc.fontSize(7);
+        // Primera línea: CIF/NIF y Cliente
+        doc.font('Helvetica-Bold').text('CIF/NIF:', startX, currentY);
+        doc.font('Helvetica').text(clienteInfo.dni || 'N/A', startX + 45, currentY);
+        doc.font('Helvetica-Bold').text('Cliente:', startX + 180, currentY);
+        doc.font('Helvetica').text(clienteInfo.name || 'N/A', startX + 230, currentY);
+        currentY += 10;
+        // Segunda línea: Teléfono y Dirección
+        doc.font('Helvetica-Bold').text('Teléfono:', startX, currentY);
+        doc.font('Helvetica').text(clienteInfo.phoneNumber || 'N/A', startX + 45, currentY);
+        doc.font('Helvetica-Bold').text('Dirección:', startX + 180, currentY);
+        doc.font('Helvetica').text(clienteInfo.address || 'N/A', startX + 230, currentY);
+        currentY += 10;
+        // Tercera línea: Email
+        doc.font('Helvetica-Bold').text('Email:', startX, currentY);
+        doc.font('Helvetica').text(clienteInfo.email || 'N/A', startX + 45, currentY);
+        currentY += 10;
+        // Cuarta línea: Fecha y Ciudad
+        doc.font('Helvetica-Bold').text('Fecha:', startX, currentY);
+        doc.font('Helvetica').text(new Date().toLocaleDateString('es-ES'), startX + 45, currentY);
+        doc.font('Helvetica-Bold').text('Ciudad:', startX + 180, currentY);
+        doc.font('Helvetica').text(clienteInfo.city || 'N/A', startX + 230, currentY);
+        currentY += 10;
+        // Quinta línea: Forma de pago
+        doc.font('Helvetica-Bold').text('Forma de pago:', startX, currentY);
+        doc.font('Helvetica').text(clienteInfo.paymentMethod ? (clienteInfo.paymentMethod.charAt(0).toUpperCase() + clienteInfo.paymentMethod.slice(1)) : 'N/A', startX + 75, currentY);
+        currentY += 12;
+
+        // --- Tabla de Detalles del Pedido ---
+        doc.fontSize(7); 
+        doc.font('Helvetica-Bold').text('Detalles del Pedido:', startX, currentY);
+        currentY = doc.y + 6; 
+
+        const tableHeaderY = currentY;
+        // Ajuste de X para vertical A4 (columna de descripción más ancha)
+        const col1X = startX, col2X = startX + 30, col3X = startX + 260, col4X = startX + 320, col5X = startX + 390; 
+        const colWidthItem = 25, colWidthDesc = 220, colWidthQty = 50, colWidthUnitVal = 60, colWidthTotalVal = 70; 
+
+        doc.font('Helvetica-Bold');
+        doc.text('Item', col1X, tableHeaderY, { width: colWidthItem, align: 'center' });
+        doc.text('Descripción', col2X, tableHeaderY, { width: colWidthDesc, align: 'left' });
+        doc.text('Cant.', col3X, tableHeaderY, { width: colWidthQty, align: 'center' }); 
+        doc.text('V. Unit.', col4X, tableHeaderY, { width: colWidthUnitVal, align: 'right' }); 
+        doc.text('V. Total', col5X, tableHeaderY, { width: colWidthTotalVal, align: 'right' }); 
+        doc.font('Helvetica');
+
+        // Línea del encabezado de la tabla
+        doc.moveTo(startX, tableHeaderY + 9) 
+           .lineTo(startX + usableWidth, tableHeaderY + 9) 
+           .stroke();
+
+        currentY = tableHeaderY + 16; 
+
+        // Filas de la Tabla (para bolsas)
+        const valorUnitarioBolsa = 15;
+        const subtotalSinRecargoBolsas = clienteInfo.quantity * valorUnitarioBolsa;
+        const recargoEnvioCalculado = clienteInfo.quantity < 3 ? 7 : 0; 
+
+        doc.text('1', col1X, currentY, { width: colWidthItem, align: 'center' });
+        doc.text(`${clienteInfo.quantity} Paquete(s) de Bolsas de Desecho (100 unidades/paquete)`, col2X, currentY, { width: colWidthDesc, align: 'left' });
+        doc.text(clienteInfo.quantity.toString(), col3X, currentY, { width: colWidthQty, align: 'center' });
+        doc.text(`S/${valorUnitarioBolsa.toFixed(2)}`, col4X, currentY, { width: colWidthUnitVal, align: 'right' });
+        doc.text(`S/${subtotalSinRecargoBolsas.toFixed(2)}`, col5X, currentY, { width: colWidthTotalVal, align: 'right' });
+        currentY += 9; 
+
+        if (recargoEnvioCalculado > 0) {
+            doc.text('2', col1X, currentY, { width: colWidthItem, align: 'center' });
+            doc.text('Recargo por envío (menos de 3 paquetes)', col2X, currentY, { width: colWidthDesc, align: 'left' });
+            doc.text('1', col3X, currentY, { width: colWidthQty, align: 'center' });
+            doc.text(`S/${recargoEnvioCalculado.toFixed(2)}`, col4X, currentY, { width: colWidthUnitVal, align: 'right' });
+            doc.text(`S/${recargoEnvioCalculado.toFixed(2)}`, col5X, currentY, { width: colWidthTotalVal, align: 'right' });
+            currentY += 9;
+        }
+
+        currentY += 5; 
+
+        // --- Sección de Totales ---
+        const igvRate = 0.18;
+        const subtotalCalculado = clienteInfo.totalPrice / (1 + igvRate);
+        const igvMonto = clienteInfo.totalPrice - subtotalCalculado;
+
+        doc.font('Helvetica-Bold');
+        doc.text('Subtotal:', col4X, currentY, { width: colWidthUnitVal, align: 'right' });
+        doc.text(`S/${subtotalCalculado.toFixed(2)}`, col5X, currentY, { width: colWidthTotalVal, align: 'right' });
+        currentY += 9;
+
+        doc.text('IGV (18%):', col4X, currentY, { width: colWidthUnitVal, align: 'right' });
+        doc.text(`S/${igvMonto.toFixed(2)}`, col5X, currentY, { width: colWidthTotalVal, align: 'right' });
+        currentY += 9;
+
+        doc.text('TOTAL:', col4X, currentY, { width: colWidthUnitVal, align: 'right' });
+        doc.fontSize(9).text(`S/${clienteInfo.totalPrice.toFixed(2)}`, col5X, currentY, { width: colWidthTotalVal, align: 'right' }); 
+        doc.font('Helvetica');
+        currentY += 7; 
+
+        // --- Observaciones ---
+        doc.fontSize(6); 
+        doc.font('Helvetica-Bold').text('Observaciones:', startX, currentY + 5); 
+        doc.font('Helvetica');
+        currentY = doc.y + 5; 
+        doc.text('TOMAR EN CUENTA QUE EL SERVIDOR DEL ASISTENTE VIRTUAL TIENE UN COSTO MENSUAL DE 20 SOLES AL MES. NECESITAMOS CREDENCIALES DE FACEBOOK PARA CAMPAÑAS Y FOTOS. EL ITEM 1 INCLUYE 4 DISEÑOS CON DOS REVISIONES POR MES. EL ITEM DOS INCLUYE LA ANALISIS DE MERCADO Y OPTIIMA SEGMENTACIÓN DE MERCADO PREVIO LANZAMIENTO DE LA CAMPAÑA, SE USARA UNO DE LOS DISEÑOS DEL ITEM 1).', startX, currentY, {
+            width: usableWidth, 
+            align: 'justify'
+        });
+        currentY = doc.y + 12; // Ajustado a 12 para simular dos saltos de línea (aproximadamente)
+
+        // --- Pie de página ---
+        doc.fontSize(6); 
+        doc.text('Esta cotización es válida por 30 días a partir de la fecha de emisión.', startX, currentY); 
+        currentY = doc.y + 2; // Ajustado para ser más compacto
+        doc.text('Atentamente,', startX, currentY);
+        currentY = doc.y + 2; // Ajustado para ser más compacto
+        doc.text('Equipo Somos Marketing Perú', startX, currentY);
+
+        doc.end(); // Finaliza el documento
+    });
+};
+
 // Función para enviar correo electrónico
-const enviarCorreoConfirmacion = async (destinatarioEmail, nombreCliente, cantidadBolsas, precioTotal) => {
+const enviarCorreoConfirmacion = async (destinatarioEmail, nombreCliente, cantidadBolsas, precioTotal, pdfBuffer = null) => {
     const transporter = nodemailer.createTransport({
         host: 'smtp.gmail.com',
         port: 465,
@@ -102,18 +286,30 @@ const enviarCorreoConfirmacion = async (destinatarioEmail, nombreCliente, cantid
                 <li>Cantidad de paquetes: <strong>${cantidadBolsas}</strong></li>
                 <li>Total a pagar: <strong>S/${precioTotal.toFixed(2)}</strong></li>
             </ul>
+            <p>Adjunto encontrarás tu cotización en formato PDF.</p>
             <p>En breve nos pondremos en contacto contigo para coordinar los detalles finales de la entrega.</p>
-            <p>Atentamente,<br>
-            El equipo de VENDOR BOLSAS PLASTICO</p>
-            <p>Si tienes alguna pregunta, no dudes en contactarnos.</p>
-        `
+            <p>¡Gracias por elegirnos!</p>
+            <p>Atentamente,</p>
+            <p>El equipo de VENDOR BOLSAS PLASTICO</p>
+            <br>
+            <p style="font-style:italic; font-weight:bold; color:#555;">
+            Este documento ha sido generado automáticamente por nuestro asistente virtual. De acuerdo con la Ley N° 29733 - Ley de Protección de Datos Personales, informamos que los datos personales recopilados por el bot (DNI, nombre, dirección, etc.) no se guardan en una base de datos persistente. Toda la información personal es de naturaleza efímera y se elimina automáticamente de nuestra memoria en un plazo máximo de 15 minutos después de finalizar la conversación. La única información que persiste es la relacionada con la emisión de la boleta electrónica (a través de la app Emprender SUNAT), la cual es retenida por el vendedor y el cliente para fines legales y de respaldo, garantizando su derecho en caso de cualquier eventualidad.
+            </p>
+        `,
+        attachments: pdfBuffer ? [{
+            filename: 'Cotizacion_VendorBolsasPlastico.pdf',
+            content: pdfBuffer,
+            contentType: 'application/pdf'
+        }] : []
     };
 
     try {
         await transporter.sendMail(mailOptions);
-        console.log(formatMessageLog('info', 'BOT -> EXTERNAL', `Correo de confirmación enviado a ${destinatarioEmail}`));
+        console.log(formatMessageLog('sent', 'BOT', `Correo de confirmación enviado a ${destinatarioEmail}`));
+        return true;
     } catch (error) {
-        console.error(formatMessageLog('error', 'BOT -> EXTERNAL', `Error al enviar correo a ${destinatarioEmail}: ${error.message}`));
+        console.error(formatMessageLog('sent', 'BOT', `Error al enviar correo a ${destinatarioEmail}: ${error.message}`));
+        return false;
     }
 };
 
@@ -323,7 +519,7 @@ const flujoPedirCodigoVerificacion = addKeyword([])
 
 // Nuevo Flujo para pedir el correo electrónico
 const flujoPedirCorreoElectronico = addKeyword([])
-    .addAnswer('Para enviarte la confirmación de tu pedido, por favor, ingresa tu dirección de correo electrónico:', { capture: true }, async (ctx, { flowDynamic, gotoFlow, fallBack }) => {
+    .addAnswer('Para enviarte la confirmación de tu pedido y la cotización en PDF, por favor, ingresa tu dirección de correo electrónico:', { capture: true }, async (ctx, { flowDynamic, gotoFlow, fallBack }) => {
         console.log(formatMessageLog('sent', ctx.from, 'Solicitando correo electrónico.'));
         console.log(formatMessageLog('received', ctx.from, ctx.body));
 
@@ -339,19 +535,82 @@ const flujoPedirCorreoElectronico = addKeyword([])
 
         const infoRuta = rutasDeConversacion.get(ctx.from) || {};
         infoRuta.email = emailUsuario;
+        // Asegurarse de que phoneNumber esté en infoRuta (ctx.from es el número de teléfono)
+        infoRuta.phoneNumber = ctx.from; 
         rutasDeConversacion.set(ctx.from, infoRuta);
         console.log(formatMessageLog('debug', ctx.from, `DEBUG: Correo electrónico actualizado para ${ctx.from}.`));
 
-        // Si el pedido fue confirmado, enviar el correo
-        if (infoRuta.pedidoConfirmado) {
-            await flowDynamic('¡Correo recibido! Enviando la confirmación de tu pedido...');
-            await enviarCorreoConfirmacion(infoRuta.email, infoRuta.name, infoRuta.quantity, infoRuta.totalPrice);
-            await flowDynamic('🎉 ¡Pedido y correo de confirmación enviados! Gracias por tu compra.');
-            return gotoFlow(flujoFinal_Bolsas);
+        // Redirigir al flujo para pedir la ciudad
+        return gotoFlow(flujoPedirCiudad);
+    });
+
+// Nuevo Flujo para pedir la ciudad
+const flujoPedirCiudad = addKeyword([])
+    .addAnswer('Por favor, ¿en qué ciudad te encuentras?', { capture: true }, async (ctx, { flowDynamic, gotoFlow }) => {
+        console.log(formatMessageLog('sent', ctx.from, 'Solicitando ciudad.'));
+        console.log(formatMessageLog('received', ctx.from, ctx.body));
+
+        const ciudadUsuario = ctx.body.trim();
+        const infoRuta = rutasDeConversacion.get(ctx.from) || {};
+        infoRuta.city = ciudadUsuario;
+        rutasDeConversacion.set(ctx.from, infoRuta);
+        console.log(formatMessageLog('debug', ctx.from, `DEBUG: Ciudad actualizada para ${ctx.from}.`));
+
+        // Redirigir al flujo para pedir la forma de pago
+        return gotoFlow(flujoPedirFormaPago);
+    });
+
+// Nuevo Flujo para pedir la forma de pago
+const flujoPedirFormaPago = addKeyword([])
+    .addAnswer('¿Cuál será tu forma de pago? Responde *Contraentrega* o *Billetera Virtual*.', { capture: true }, async (ctx, { flowDynamic, gotoFlow, fallBack }) => {
+        console.log(formatMessageLog('sent', ctx.from, 'Solicitando forma de pago.'));
+        console.log(formatMessageLog('received', ctx.from, ctx.body));
+
+        const formaPagoUsuario = ctx.body.trim().toLowerCase();
+        let infoRuta = rutasDeConversacion.get(ctx.from) || {};
+
+        if (formaPagoUsuario === 'contraentrega' || formaPagoUsuario === 'billetera virtual') {
+            infoRuta.paymentMethod = formaPagoUsuario;
+            rutasDeConversacion.set(ctx.from, infoRuta);
+            console.log(formatMessageLog('debug', ctx.from, `DEBUG: Forma de pago actualizada para ${ctx.from}.`));
+
+            // Aquí generamos y enviamos el PDF con todos los datos
+            if (infoRuta.pedidoConfirmado) {
+                await flowDynamic('¡Información completa! Generando y enviando tu cotización...');
+
+                try {
+                    const clienteInfoParaPDF = {
+                        name: infoRuta.name,
+                        dni: infoRuta.dni,
+                        phoneNumber: infoRuta.phoneNumber,
+                        address: infoRuta.address,
+                        email: infoRuta.email,
+                        quantity: infoRuta.quantity,
+                        totalPrice: infoRuta.totalPrice,
+                        city: infoRuta.city, // Añadido
+                        paymentMethod: infoRuta.paymentMethod // Añadido
+                    };
+
+                    const pdfBuffer = await generarCotizacionPDF(clienteInfoParaPDF);
+                    await enviarCorreoConfirmacion(infoRuta.email, infoRuta.name, infoRuta.quantity, infoRuta.totalPrice, pdfBuffer);
+                    
+                    await flowDynamic('🎉 ¡Pedido confirmado, correo y cotización adjunta enviados! Gracias por tu compra.');
+                    return gotoFlow(flujoFinal_Bolsas);
+                } catch (pdfError) {
+                    console.error(formatMessageLog('error', 'BOT -> EXTERNAL', `Error al generar o adjuntar PDF para ${infoRuta.email}: ${pdfError.message}`));
+                    await flowDynamic('⚠️ Hubo un problema al generar tu cotización en PDF, pero tu pedido ha sido confirmado. Nos pondremos en contacto contigo pronto.');
+                    // Intentar enviar el correo sin PDF si hay un error en la generación del PDF
+                    await enviarCorreoConfirmacion(infoRuta.email, infoRuta.name, infoRuta.quantity, infoRuta.totalPrice);
+                    return gotoFlow(flujoFinal_Bolsas);
+                }
+            } else {
+                await flowDynamic('Parece que hubo un problema con la confirmación de tu pedido. Por favor, intenta de nuevo escribiendo "Hola".');
+                return gotoFlow(flujoBienvenida);
+            }
         } else {
-            // Esto no debería pasar si el flujo se sigue correctamente
-            await flowDynamic('Parece que hubo un problema con la confirmación de tu pedido. Por favor, intenta de nuevo escribiendo "Hola".');
-            return gotoFlow(flujoBienvenida);
+            await flowDynamic('❌ Opción inválida. Por favor, responde *Contraentrega* o *Billetera Virtual*.');
+            console.log(formatMessageLog('sent', ctx.from, '❌ Forma de pago inválida.'));
+            return fallBack();
         }
     });
 
@@ -471,6 +730,8 @@ const main = async () => {
         flujoRecopilacionDireccion,
         flujoConfirmarEntrega,
         flujoPedirCorreoElectronico,
+        flujoPedirCiudad,
+        flujoPedirFormaPago,
         flujoFinal_Bolsas,
         flujoContratarServicios_Bolsas
     ]);
