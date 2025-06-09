@@ -2,10 +2,10 @@
   key: {
     remoteJid: '51904727244@s.whatsapp.net',
     fromMe: false,
-    id: 'FC81E96441C300840D873233DAA6D13C',
+    id: '180FC9AF9F43049A90AC8427A6621D56',
     participant: undefined
   },
-  messageTimestamp: 1749443063,
+  messageTimestamp: 1749446778,
   pushName: 'Somos Marketing Perú',
   broadcast: false,
   message: Message {
@@ -20,8 +20,8 @@
   from: '51904727244'
 }
 [QUEUE_SE_ENVIO]:  {
-  ref: 'ans_6d0a374f-101e-4751-8323-f6ba9eb4a6dd',
-  keyword: 'key_f938c0c7-cf0e-4fb5-8766-6bca19750e38',
+  ref: 'ans_bd7f08cf-c508-46ed-aaf1-2ab528a44854',
+  keyword: 'key_83f18826-c7e7-46b8-8e87-30300a626419',
   answer: '__call_action__',
   options: {
     media: null,
@@ -35,11 +35,11 @@
     keyword: {},
     callback: true
   },
-  refSerialize: 'f69f9a9051779607553069bd47112dff'
+  refSerialize: '5edcd5142bfe6bcb10e5f57eac79387d'
 }
 [QUEUE_SE_ENVIO]:  {
-  ref: 'ans_aca36edd-19e8-4ef8-b82f-e601112d80ce',
-  keyword: 'ans_6d0a374f-101e-4751-8323-f6ba9eb4a6dd',
+  ref: 'ans_2bc7925d-3cf1-48f2-929b-9fc4c48e5da8',
+  keyword: 'ans_bd7f08cf-c508-46ed-aaf1-2ab528a44854',
   answer: 'Por favor, revisa nuestros *Términos y Condiciones (TyC)* adjuntos para continuar con el servicio. Una vez que los hayas leído, por favor, responde **Sí** a la siguiente pregunta si estás de acuerdo.',
   options: {
     media: null,
@@ -53,11 +53,11 @@
     keyword: {},
     callback: true
   },
-  refSerialize: '7f39eeda982c91b3ce41ddf28178f327'
+  refSerialize: '71228807f161ec42ad9deb8c9887df0b'
 }
 [QUEUE_SE_ENVIO]:  {
-  ref: 'ans_edaad9ef-1c88-41da-b2dc-c62256befa20',
-  keyword: 'ans_aca36edd-19e8-4ef8-b82f-e601112d80ce',
+  ref: 'ans_67fdf42d-ef93-425c-b3cf-fbd47a203379',
+  keyword: 'ans_2bc7925d-3cf1-48f2-929b-9fc4c48e5da8',
   answer: '📌 **¿Estás de acuerdo con el servicio?** Responde **Sí** para continuar 🙌.',
   options: {
     media: null,
@@ -71,16 +71,16 @@
     keyword: {},
     callback: true
   },
-  refSerialize: '861966edc0701975f30400c4aa158c4e'
+  refSerialize: '8b1b27c469597ca98afb75e26df8c858'
 }
 [handleMsg]:  {
   key: {
     remoteJid: '51904727244@s.whatsapp.net',
     fromMe: false,
-    id: 'EB0B1AE1B28C64A17EB24613E4712D31',
+    id: '6F6B33AB1496AF719B153A3B56F258EB',
     participant: undefined
   },
-  messageTimestamp: 1749443065,
+  messageTimestamp: 1749446781,
   pushName: 'Somos Marketing Perú',
   broadcast: false,
   message: Message {
@@ -98,10 +98,10 @@
   key: {
     remoteJid: '51904727244@s.whatsapp.net',
     fromMe: false,
-    id: '94060D534E241C54B534F0546E2ABDD4',
+    id: '272DB69754353BCE1470DBCFD234E5B1',
     participant: undefined
   },
-  messageTimestamp: 1749443067,
+  messageTimestamp: 1749446782,
   pushName: 'Somos Marketing Perú',
   broadcast: false,
   message: Message {
@@ -119,10 +119,10 @@
   key: {
     remoteJid: '51904727244@s.whatsapp.net',
     fromMe: false,
-    id: '96F7DBD532A8F6765A5995679513A72F',
+    id: '7B5B6B271685D98DC2434BC1BA65D14D',
     participant: undefined
   },
-  messageTimestamp: 1749443076,
+  messageTimestamp: 1749446788,
   pushName: 'Somos Marketing Perú',
   broadcast: false,
   message: Message {
@@ -140,10 +140,10 @@
   key: {
     remoteJid: '51904727244@s.whatsapp.net',
     fromMe: false,
-    id: '77548B99F6BE669C005D57E2FEAEFD63',
+    id: '1FB9E38557E258914C8537D07F59F7EC',
     participant: undefined
   },
-  messageTimestamp: 1749443080,
+  messageTimestamp: 1749446790,
   pushName: 'Somos Marketing Perú',
   broadcast: false,
   message: Message {
@@ -161,10 +161,10 @@
   key: {
     remoteJid: '51904727244@s.whatsapp.net',
     fromMe: false,
-    id: '580422E62FC6DF788FE9D6CA3F9A56DA',
+    id: '4C510FC89B3E5DC42B292EACA002CB59',
     participant: undefined
   },
-  messageTimestamp: 1749443084,
+  messageTimestamp: 1749446794,
   pushName: 'Somos Marketing Perú',
   broadcast: false,
   message: Message {
@@ -182,10 +182,10 @@
   key: {
     remoteJid: '51904727244@s.whatsapp.net',
     fromMe: false,
-    id: '7E3F918221D57D887802E8DCC3978163',
+    id: 'D1D3140ACCF91D6E18B69851E1C2306B',
     participant: undefined
   },
-  messageTimestamp: 1749443089,
+  messageTimestamp: 1749446796,
   pushName: 'Somos Marketing Perú',
   broadcast: false,
   message: Message {
@@ -203,94 +203,94 @@
   key: {
     remoteJid: '51904727244@s.whatsapp.net',
     fromMe: false,
-    id: '17B482D0F281349DEDE1089EC60C5FEC',
+    id: 'ECEE8576D2616848E876FB4BF9F8024A',
     participant: undefined
   },
-  messageTimestamp: 1749443097,
+  messageTimestamp: 1749446802,
   pushName: 'Somos Marketing Perú',
   broadcast: false,
   message: Message {
-    conversation: 'Tarapacá',
+    conversation: 'Tarapacá 260',
     messageContextInfo: MessageContextInfo {
       deviceListMetadata: [DeviceListMetadata],
       deviceListMetadataVersion: 2,
       messageSecret: [Uint8Array]
     }
   },
-  body: 'Tarapacá',
+  body: 'Tarapacá 260',
   from: '51904727244'
 }
 [handleMsg]:  {
   key: {
     remoteJid: '51904727244@s.whatsapp.net',
     fromMe: false,
-    id: '6A914238A1AB5A5E1AC24BFDC54A51FA',
+    id: '3274DFF4F98BFFFB3DFD01839574C66A',
     participant: undefined
   },
-  messageTimestamp: 1749443102,
+  messageTimestamp: 1749446807,
   pushName: 'Somos Marketing Perú',
   broadcast: false,
   message: Message {
-    conversation: 'Magdalena',
+    conversation: 'Magdalena del mar',
     messageContextInfo: MessageContextInfo {
       deviceListMetadata: [DeviceListMetadata],
       deviceListMetadataVersion: 2,
       messageSecret: [Uint8Array]
     }
   },
-  body: 'Magdalena',
+  body: 'Magdalena del mar',
   from: '51904727244'
 }
 [handleMsg]:  {
   key: {
     remoteJid: '51904727244@s.whatsapp.net',
     fromMe: false,
-    id: 'F14A5122253408E0F16D68A41B83571F',
+    id: '36C06AC423ABDD09A64719F08A31A522',
     participant: undefined
   },
-  messageTimestamp: 1749443115,
+  messageTimestamp: 1749446813,
   pushName: 'Somos Marketing Perú',
   broadcast: false,
   message: Message {
-    conversation: '666m2',
+    conversation: '9999m2',
     messageContextInfo: MessageContextInfo {
       deviceListMetadata: [DeviceListMetadata],
       deviceListMetadataVersion: 2,
       messageSecret: [Uint8Array]
     }
   },
-  body: '666m2',
+  body: '9999m2',
   from: '51904727244'
 }
 [handleMsg]:  {
   key: {
     remoteJid: '51904727244@s.whatsapp.net',
     fromMe: false,
-    id: 'ED484F1F5CCEFEA1105E399704E992B7',
+    id: '93091EDB4ED09910436FCCCE26D33148',
     participant: undefined
   },
-  messageTimestamp: 1749443149,
+  messageTimestamp: 1749446825,
   pushName: 'Somos Marketing Perú',
   broadcast: false,
   message: Message {
-    conversation: 'Hola, quiero más información del dpto',
+    conversation: 'Hola quiero ese país para mí',
     messageContextInfo: MessageContextInfo {
       deviceListMetadata: [DeviceListMetadata],
       deviceListMetadataVersion: 2,
       messageSecret: [Uint8Array]
     }
   },
-  body: 'Hola, quiero más información del dpto',
+  body: 'Hola quiero ese país para mí',
   from: '51904727244'
 }
 [handleMsg]:  {
   key: {
     remoteJid: '51904727244@s.whatsapp.net',
     fromMe: false,
-    id: '7695F60A7A1034E894CCDF87F6A3C838',
+    id: 'ABB6F25DC6AF01AA9C5140A8410DA9BF',
     participant: undefined
   },
-  messageTimestamp: 1749443160,
+  messageTimestamp: 1749446828,
   pushName: 'Somos Marketing Perú',
   broadcast: false,
   message: Message {
@@ -302,5 +302,26 @@
     }
   },
   body: 'No',
+  from: '51904727244'
+}
+[handleMsg]:  {
+  key: {
+    remoteJid: '51904727244@s.whatsapp.net',
+    fromMe: false,
+    id: '32ED683139EA2FDE655FEFF61915895C',
+    participant: undefined
+  },
+  messageTimestamp: 1749446832,
+  pushName: 'Somos Marketing Perú',
+  broadcast: false,
+  message: Message {
+    conversation: 'Linkedin.josericardo@gmail.com',
+    messageContextInfo: MessageContextInfo {
+      deviceListMetadata: [DeviceListMetadata],
+      deviceListMetadataVersion: 2,
+      messageSecret: [Uint8Array]
+    }
+  },
+  body: 'Linkedin.josericardo@gmail.com',
   from: '51904727244'
 }

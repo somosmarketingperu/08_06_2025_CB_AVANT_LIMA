@@ -151,7 +151,7 @@ const generarCartelQRPDF = async (propiedadInfo, mensajePersonalizado, numeroTel
 const generarFichaTecnicaPDF = async (propiedadInfo) => {
     return new Promise((resolve, reject) => {
         const doc = new PDFDocument({
-            size: 'A4',
+            size: [298, 842], // Mitad de A4 vertical (105mm x 297mm)
             margin: 50,
             info: {
                 Title: 'Ficha Técnica AVANT LIMA',
@@ -188,7 +188,7 @@ const generarFichaTecnicaPDF = async (propiedadInfo) => {
         doc.text(`Distrito: ${propiedadInfo.distrito || 'N/A'}`);
         doc.text(`Tamaño: ${propiedadInfo.tamano || 'N/A'}`);
         doc.text(`Número Adicional: ${propiedadInfo.numeroAdicional || 'N/A'}`);
-        doc.text(`Mensaje Personalizado QR: ${propiedadInfo.mensajePersonalizadoQR || 'N/A'}`);
+        doc.text(`Mensaje Personalizado QR: ${propiedadInfo.mensajePersonalizadoQR || propiedadInfo.mensajePersonalizado || 'N/A'}`);
 
         doc.end();
     });
@@ -197,13 +197,13 @@ const generarFichaTecnicaPDF = async (propiedadInfo) => {
 // REDISEÑADA: enviarCorreoConfirmacion a enviarCorreoConArchivos
 const enviarCorreoConArchivos = async (destinatarioEmail, asuntoCorreo, cuerpoCorreo, archivosAdjuntos = []) => {
     const transporter = nodemailer.createTransport({
-        host: 'smtp.hostinger.com',
+        host: 'smtp.gmail.com',
         port: 465,
         secure: true,
         auth: {
-            user: 'contacto@somosmarketingperu.com',
-            pass: 'Somosmarketingperu00000000' // Contraseña de aplicación si está configurada, o la contraseña de la cuenta
-        },
+            user: 'contacto@somosmarketingperu.com', // Tu correo de Google Workspace
+            pass: 'zatqdjnollcaknyu' // Contraseña de aplicación generada
+        }
     });
 
     const mailOptions = {
@@ -362,7 +362,7 @@ const flujoPedirCodigoVerificacion = addKeyword([])
                         const successMessage = `✅ ¡Gracias! Tu DNI ha sido validado, ${nombreCompleto}.`;
                         await flowDynamic(successMessage);
 
-                        rutasDeConversacion.set(ctx.from, { ...infoRuta, validated: true, name: nombreCompleto, verificationCode: codigoVerificacionAPI, email: respuesta.data.email });
+                        rutasDeConversacion.set(ctx.from, { ...infoRuta, validated: true, name: nombreCompleto, verificationCode: codigoVerificacionAPI });
 
                         await flowDynamic([
                             `✨ *¡Gracias ${nombreCompleto}!* ✨\n\n`,
@@ -384,6 +384,53 @@ const flujoPedirCodigoVerificacion = addKeyword([])
         }
     );
 
+// NUEVO FLUJO: PEDIR CORREO ELECTRÓNICO (MOVIDO)
+const flujoPedirCorreo = addKeyword([])
+    .addAnswer(
+        'Por favor, ingresa tu correo electrónico para enviarte el cartel QR y la ficha técnica (ejemplo: usuario@email.com):',
+        { capture: true },
+        async (ctx, { flowDynamic, gotoFlow }) => {
+            const correo = ctx.body.trim();
+            const correoValido = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(correo);
+            if (!correoValido) {
+                await flowDynamic('❌ El correo ingresado no es válido. Por favor, ingresa un correo electrónico válido.');
+                return gotoFlow(flujoPedirCorreo);
+            }
+            let infoRuta = rutasDeConversacion.get(ctx.from) || {};
+            infoRuta.email = correo;
+            infoRuta.phoneNumber = infoRuta.phoneNumber || ctx.from;
+            rutasDeConversacion.set(ctx.from, infoRuta);
+            await flowDynamic('✅ Correo registrado correctamente.');
+
+            const servicio = infoRuta.servicio;
+            if (servicio === 'Premium') {
+                return gotoFlow(paymentFlow);
+            } else {
+                try {
+                    console.log('DEBUG: Generando y enviando PDFs para servicio Básico a', infoRuta.email);
+                    const cartelBuffer = await generarCartelQRPDF(infoRuta, infoRuta.mensajePersonalizado, infoRuta.phoneNumber, 'basico');
+                    const fichaBuffer = await generarFichaTecnicaPDF(infoRuta);
+                    const asunto = '¡Tu Cartel QR y Ficha Técnica AVANT LIMA están listos!';
+                    const cuerpo = `Hola ${infoRuta.name || 'Cliente AVANT LIMA'},<br><br>Adjuntamos tu cartel QR y la ficha técnica de tu propiedad.<br>Recuerda que ambos archivos están protegidos con tu DNI como contraseña.<br><br>¡Gracias por confiar en AVANT LIMA!`;
+                    await enviarCorreoConArchivos(
+                        infoRuta.email,
+                        asunto,
+                        cuerpo,
+                        [
+                            { filename: 'Cartel_QR_AVANT_LIMA_Basico.pdf', content: cartelBuffer },
+                            { filename: 'Ficha_Tecnica_AVANT_LIMA.pdf', content: fichaBuffer }
+                        ]
+                    );
+                    await flowDynamic('🎉 ¡Te hemos enviado el cartel QR y la ficha técnica a tu correo! Revisa tu bandeja de entrada (y spam).');
+                } catch (error) {
+                    await flowDynamic('⚠️ Hubo un problema al enviar el correo. Por favor, contacta a soporte.');
+                    console.error('Error al enviar correo:', error);
+                }
+                return gotoFlow(flujoFinal_AVANTLIMA);
+            }
+        }
+    );
+
 // TIEMPO DE ESPERA PARA TODOS LOS FLUJOS
 const TIMEOUT = 300000; // 5 minutos
 
@@ -400,10 +447,13 @@ const flujoSeleccionarOperacion = addKeyword(['1', '2'])
         async (ctx, { flowDynamic, gotoFlow }) => {
             const opcion = ctx.body.trim();
             console.log('DEBUG: Opción de operación seleccionada:', opcion);
-            
+            let infoRuta = rutasDeConversacion.get(ctx.from) || {};
             if (opcion === '1' || opcion === '2') {
                 const operacion = opcion === '1' ? 'Alquilar' : 'Vender';
                 await flowDynamic(`Has seleccionado ${operacion} tu propiedad.`);
+                // Guardar la operación en infoRuta
+                infoRuta.operacion = operacion;
+                rutasDeConversacion.set(ctx.from, infoRuta);
                 return gotoFlow(flujoSeleccionServicio);
             } else {
                 await flowDynamic('Por favor, selecciona 1 o 2.');
@@ -594,19 +644,8 @@ const flujoPreguntaNumeroAdicional = addKeyword(['__internal_ask_additional_phon
             }
             await state.update({ numeroAdicional: finalNumeroAdicional });
             rutasDeConversacion.set(ctx.from, { ...rutasDeConversacion.get(ctx.from), numeroAdicional: finalNumeroAdicional });
-            
-            const infoRuta = rutasDeConversacion.get(ctx.from) || {};
-            if (infoRuta.servicio === 'Premium') {
-                await flowDynamic('💳 Proceso de Pago Premium 💳\nPara activar todas las funcionalidades premium, realiza el pago de S/ 100:\n1️⃣ Yape: 999-999-999\n2️⃣ Plin: 999-999-999\nEnvía una foto del comprobante para continuar.');
-                return gotoFlow(paymentFlow);
-            } else { // Servicio Básico
-                await flowDynamic([
-                    '🎉 *¡Excelente! Tenemos toda la información necesaria para tu servicio Básico* 🎉\n\n',
-                    'Generando tu cartel QR gratuito...\n',
-                    'Este proceso tomará unos segundos.'
-                ].join('\n'));
-                return gotoFlow(flujoFinal_AVANTLIMA);
-            }
+            // NUEVO: Pedir correo después de recopilar todos los datos
+            return gotoFlow(flujoPedirCorreo);
         }
     );
 
@@ -622,8 +661,7 @@ const clientFlow = addKeyword(['__internal_client_flow_start__'])
     });
 
 // 7. PROCESO DE PAGO PREMIUM
-const paymentFlow = addKeyword(['payment_flow_start']) // Keyword interno
-    // Chatbot: 💳 Proceso de Pago Premium 💳 Para activar todas las funcionalidades premium...
+const paymentFlow = addKeyword(['payment_flow_start'])
     .addAnswer(
         [
             '💳 *Proceso de Pago Premium* 💳\n\n',
@@ -655,10 +693,9 @@ const paymentFlow = addKeyword(['payment_flow_start']) // Keyword interno
                 paymentTimestamp: new Date().toISOString()
             });
 
-            // Chatbot: ✅ ¡Comprobante Recibido! Verificaremos tu pago...
             await flowDynamic([
-                '✅ *¡Comprobante Recibido!*\\n',
-                'Verificaremos tu pago y activaremos tu cuenta Premium.\\n',
+                '✅ *¡Comprobante Recibido!*\n',
+                'Verificaremos tu pago y activaremos tu cuenta Premium.\n',
                 'Generando tu cartel QR y ficha técnica...'
             ].join(''));
 
@@ -666,16 +703,8 @@ const paymentFlow = addKeyword(['payment_flow_start']) // Keyword interno
                 const propiedadInfo = rutasDeConversacion.get(ctx.from);
                 const cartelBuffer = await generarCartelQRPDF(propiedadInfo, propiedadInfo.mensajePersonalizado, propiedadInfo.phoneNumber, 'premium');
                 const fichaBuffer = await generarFichaTecnicaPDF(propiedadInfo);
-
                 const asunto = '¡Tu Servicio Premium AVANT LIMA ha sido activado! Cartel QR y Ficha Técnica listos';
-                const cuerpo = `Hola ${propiedadInfo.name || 'Cliente AVANT LIMA'},\n\n` +
-                               `¡Felicidades! Tu servicio Premium ha sido activado. Adjuntamos el cartel QR personalizado y la ficha técnica detallada de tu propiedad. ¡Comienza a promocionar!\n\n` +
-                               `\n\n--- Notas Importantes ---\n` +
-                               `1. Este cartel QR y la ficha técnica son para uso personal en la promoción de su propiedad.\n` +
-                               `2. La información mostrada se basa en los datos proporcionados por usted.\n` +
-                               `3. Para cualquier consulta o soporte, contáctenos a través de nuestros canales oficiales.\n` +
-                               `-----------------------`;
-
+                const cuerpo = `Hola ${propiedadInfo.name || 'Cliente AVANT LIMA'},<br><br>¡Felicidades! Tu servicio Premium ha sido activado. Adjuntamos el cartel QR personalizado y la ficha técnica detallada de tu propiedad.<br>Recuerda que ambos archivos están protegidos con tu DNI como contraseña.<br><br>¡Gracias por confiar en AVANT LIMA!`;
                 await enviarCorreoConArchivos(
                     propiedadInfo.email,
                     asunto,
@@ -685,14 +714,10 @@ const paymentFlow = addKeyword(['payment_flow_start']) // Keyword interno
                         { filename: 'Ficha_Tecnica_AVANT_LIMA.pdf', content: fichaBuffer }
                     ]
                 );
-
-                // 8. GENERACIÓN Y ENVÍO DE CARTEL QR Y FICHA TÉCNICA (PARA PREMIUM)
-                // Chatbot: ✨ ¡Tu cartel QR y la ficha técnica están listos! ✨ Te enviaré ambos archivos...
                 await flowDynamic([
                     '✨ *¡Tu cartel QR y la ficha técnica están listos!* ✨\n\n',
                     'Te hemos enviado ambos archivos a tu correo electrónico registrado.'
                 ].join(''));
-                // Pasa al flujo 9: Flujo Final
                 return gotoFlow(flujoFinal_AVANTLIMA);
             } catch (error) {
                 return handleError(flowDynamic, 'generacion_y_envio_premium', error);
@@ -723,6 +748,7 @@ const main = async () => {
         flujoContratarServiciosInmobiliarios, // 2. Pregunta si desea explorar servicios
         flujoValidacionDni,                 // 3. Validación de DNI
         flujoPedirCodigoVerificacion,       // 4. Código de verificación
+        flujoPedirCorreo,                   // NUEVO: Pedir correo
         flujoSeleccionarOperacion,          // 5. Selección Alquilar/Vender
         flujoSeleccionServicio,             // 6. Selección Básico/Premium
         clientFlow,                         // Punto de entrada para la recopilación de datos de propiedad
